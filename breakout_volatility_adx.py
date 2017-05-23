@@ -1,18 +1,13 @@
 import talib
-from rqalpha.api import *
 import os
 
 
 def init(context):
     context.s1 = "510050.XSHG"
 
-    # context.malen = int(os.environ['malen'])
-    # context.atrlen = int(os.environ['atrlen'])
-    # context.bw = float(os.environ['bw'])
-
-    context.malen = 15
-    context.atrlen = 6
-    context.bw = 1.5
+    context.malen = int(os.environ['malen'])
+    context.atrlen = int(os.environ['atrlen'])
+    context.bw = float(os.environ['bw'])
 
     context.sample = 200
 
@@ -27,12 +22,16 @@ def handle_bar(context, bar_dict):
     high = history_bars(context.s1, context.sample, '1d', 'high')
     low = history_bars(context.s1, context.sample, '1d', 'low')
 
-    if context.malen == 1:
-        ema = close
-    else:
-        ema = talib.EMA(close, timeperiod=context.malen)
-
+    ema = talib.EMA(close, timeperiod=context.malen) if context.malen > 1 else close
     atr = talib.ATR(high, low, close, timeperiod=context.atrlen)
+
+    band_width = context.bw * atr[-2]
+    center_price = ema[-2]
+    upper_band = center_price + band_width
+    lower_band = center_price - band_width
+
+    adx = talib.ADX(high, low, close, timeperiod=18)
+    trending = adx[-1] > adx[-7:-1].max()
 
     action = 'no_action'
     if context.portfolio.positions[context.s1].quantity > 0:
@@ -41,12 +40,11 @@ def handle_bar(context, bar_dict):
         context.stop_loss = context.price - context.mmstp * context.atr
         context.stop_profit = context.price + context.ptlim * context.atr
 
-        if close[-1] < ema[-2] - context.bw * atr[-2] or close[-1] > context.stop_profit or close[
-            -1] < context.stop_loss \
+        if (close[-1] < lower_band and trending) or close[-1] > context.stop_profit or close[-1] < context.stop_loss \
                 or context.hold_day > context.maxhold:
             action = 'exit'
     else:
-        if close[-1] > ema[-2] + context.bw * atr[-2]:
+        if close[-1] > upper_band and trending:
             action = 'entry'
 
     if action == 'entry':
