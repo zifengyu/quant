@@ -2,7 +2,7 @@ import pickle
 import os
 import utils
 
-strategy = 'breakout'
+strategy = 'breakout_volatility_adx'
 meta = '510050_20100101_20161231'
 
 root_folder = os.path.join('results', strategy, meta)

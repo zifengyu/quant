@@ -1,13 +1,13 @@
 import talib
-import os
+from rqalpha.api import *
 
 
 def init(context):
     context.s1 = "510050.XSHG"
 
-    context.malen = int(os.environ['malen'])
-    context.atrlen = int(os.environ['atrlen'])
-    context.bw = float(os.environ['bw'])
+    context.malen = 1
+    context.atrlen = 10
+    context.bw = 1.5
 
     context.sample = 200
 
@@ -22,7 +22,11 @@ def handle_bar(context, bar_dict):
     high = history_bars(context.s1, context.sample, '1d', 'high')
     low = history_bars(context.s1, context.sample, '1d', 'low')
 
-    ema = talib.EMA(close, timeperiod=context.malen) if context.malen > 1 else close
+    if context.malen > 1:
+        ema = talib.EMA(close, timeperiod=context.malen)
+    else:
+        ema = close
+
     atr = talib.ATR(high, low, close, timeperiod=context.atrlen)
 
     band_width = context.bw * atr[-2]

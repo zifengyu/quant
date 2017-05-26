@@ -1,5 +1,4 @@
 import talib
-import os
 from rqalpha.api import *
 
 

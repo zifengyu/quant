@@ -1,6 +1,5 @@
 import talib
 from rqalpha.api import *
-import os
 
 
 def init(context):
@@ -10,8 +9,8 @@ def init(context):
     # context.atrlen = int(os.environ['atrlen'])
     # context.bw = float(os.environ['bw'])
 
-    context.malen = 15
-    context.atrlen = 6
+    context.malen = 1
+    context.atrlen = 10
     context.bw = 1.5
 
     context.sample = 200
