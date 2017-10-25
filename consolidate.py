@@ -2,7 +2,7 @@ import pickle
 import os
 import utils
 
-strategy = 'moving_average_atype3_mtype2'
+strategy = 'standard_exit_strategy'
 meta = '510050_20100101_20161231'
 
 root_folder = os.path.join('results', strategy, meta)
@@ -15,7 +15,7 @@ with open('{}_{}.csv'.format(strategy, meta), 'w') as rf:
         rrr = utils.cal_reward_to_risk(total_value)
 
         rf.write('{},{},{},{}\n'.format(
-            file_name[:file_name.find('.')],
+            file_name[:file_name.find('.pkl')],
             rrr,
             total_value[-1] - total_value[0],
             int(len(result_dict['trades']) / 2)
